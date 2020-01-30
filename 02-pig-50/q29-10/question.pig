@@ -40,3 +40,23 @@ u = LOAD 'data.csv' USING PigStorage(',')
 --
 -- >>> Escriba su respuesta a partir de este punto <<<
 --
+fs -rm -f -r data.csv
+fs -put data.csv
+
+u = LOAD 'data.csv' USING PigStorage(',') 
+    AS (id:int, 
+        firstname:CHARARRAY, 
+        surname:CHARARRAY, 
+        birthday:CHARARRAY, 
+        color:CHARARRAY, 
+        quantity:INT);
+
+
+Resp29 = FOREACH u GENERATE $3,ToDate($3,'yyyy-MM-dd');
+Resp = FOREACH Resp29 GENERATE $0,CASE ToString($1,'MM') WHEN '01' THEN 'ene' WHEN '02' THEN 'feb' WHEN '03' THEN 'mar' WHEN '04' THEN 'abr' WHEN '05' THEN 'may' WHEN '06' THEN 'jun' WHEN '07' THEN 'jul' WHEN '08' THEN 'ago' WHEN '09' THEN 'sep' WHEN '10' THEN 'oct' WHEN '11' THEN 'nov' WHEN '12' THEN 'dic' END,ToString($1,'MM'),ToString($1,'M');
+DUMP Resp;
+
+
+STORE Resp INTO 'output' USING PigStorage(',');
+
+fs -copyToLocal output output
